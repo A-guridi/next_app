@@ -1,15 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Pool, Client } from 'pg';
 
-import sql from './postgre';
+import pg from './postgres_config';
 
-const pool = new Pool({
-    user: 'myuser',
-    host: 'localhost',
-    database: 'mydatabase',
-    password: 'mypassword',
-    port: 5432,
-  });
 
 async function getUsersOver(age:number) {
     const users = await sql`
@@ -23,15 +15,16 @@ async function getUsersOver(age:number) {
     return users
   }
 
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT * FROM mytable');
+    const client = pg;
+    const result = await pg.call('SELECT * FROM mytable');
     res.status(200).json(result.rows);
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: 'Internal server error' });
   } finally {
-    pool.end();
+    pg.end();
   }
 }
